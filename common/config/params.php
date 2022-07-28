@@ -6,4 +6,7 @@ return [
     'senderName' => 'Example.com mailer',
     'user.passwordResetTokenExpire' => 3600,
     'user.passwordMinLength' => 8,
+	'frontendUrl' => 'http://yii-project-1.localhost',
+	'backendUrl' => 'http://yii-project-1.localhost'
+
 ];

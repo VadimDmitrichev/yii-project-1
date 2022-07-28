@@ -24,13 +24,18 @@ use yii\web\UploadedFile;
  */
 class Product extends \yii\db\ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function tableName()
-    {
-        return '{{%products}}';
-    }
+	/**
+	 * @var \yii\web\UploadedFile
+	 */
+	public $imageFile;
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function tableName()
+	{
+		return '{{%products}}';
+	}
 
 	public function behaviors()
 	{
@@ -58,31 +63,61 @@ class Product extends \yii\db\ActiveRecord
 		];
 	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'description' => 'Description',
-            'image' => 'Product Image...',
-            'price' => 'Price',
-            'status' => 'Published',
-            'create_at' => 'Create At',
-            'updated_at' => 'Updated At',
-            'created_by' => 'Created By',
-            'updated_by' => 'Updated By',
-        ];
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function attributeLabels()
+	{
+		return [
+			'id' => 'ID',
+			'name' => 'Name',
+			'description' => 'Description',
+			'imageFile' => 'Product Image',
+			'price' => 'Price',
+			'status' => 'Published',
+			'created_at' => 'Create At',
+			'updated_at' => 'Updated At',
+			'created_by' => 'Created By',
+			'updated_by' => 'Updated By',
+		];
+	}
 
-    /**
-     * {@inheritdoc}
-     * @return \common\models\query\ProductQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new \common\models\query\ProductQuery(get_called_class());
-    }
+	/**
+	 * {@inheritdoc}
+	 * @return \common\models\query\ProductQuery the active query used by this AR class.
+	 */
+	public static function find()
+	{
+		return new \common\models\query\ProductQuery(get_called_class());
+	}
+
+	public function save($runValidation = true, $attributeNames = null)
+	{
+
+		if ($this->imageFile) {
+			$this->image = '/products/' . Yii::$app->security->generateRandomString() . '/' . $this->imageFile->name;
+		}
+
+		$transactions = Yii::$app->db->beginTransaction();
+		$ok = parent::save($runValidation, $attributeNames);
+
+
+		if ($ok) {
+			$fullPath = Yii::getAlias('@frontend/web/storage' . $this->image);
+			$dir = dirname($fullPath);
+			if (!FileHelper::createDirectory($dir) | !$this->imageFile->saveAs($fullPath)) {
+				$transactions->rollBack();
+				return false;
+			}
+
+			$transactions->commit();
+		}
+
+		return $ok;
+	}
+
+	public function getImageUrl()
+	{
+		return Yii::$app->params['frontendUrl'] . '/storage' . $this->image;
+	}
 }

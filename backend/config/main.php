@@ -34,6 +34,10 @@ return [
                 ],
             ],
         ],
+	    'formatter' => [
+		    'currencyCode' => '$',
+
+	    ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],

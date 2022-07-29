@@ -34,6 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
 				],
 			],
 			[
+            	'attribute' => 'name',
+				'content' => function ($model) {
+					return \yii\helpers\StringHelper::truncateWords($model->name, 7);
+				}
+			],
+			[
 				'label' => 'Image',
 				'attribute' => 'image',
 				'content' => function ($model) {
@@ -69,6 +75,7 @@ $this->params['breadcrumbs'][] = $this->title;
 					return Url::toRoute([$action, 'id' => $model->id]);
 				}
 			],
+
 		],
 	]); ?>
 
